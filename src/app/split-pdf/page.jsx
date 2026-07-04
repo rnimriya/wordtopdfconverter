@@ -246,7 +246,7 @@ function SplitPDF() {
         successMessage={successMessage}
         errorMessage={errorMessage}
         seoContent={seoContent}
-         />}
+        preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
       />
     </>
   );

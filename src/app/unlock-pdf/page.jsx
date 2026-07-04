@@ -244,7 +244,7 @@ return (
       progress={progress}
       successMessage={successMessage}
       errorMessage={errorMessage}
-       />}
+      preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
     />
     </>
   );

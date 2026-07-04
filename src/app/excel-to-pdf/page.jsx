@@ -365,7 +365,12 @@ function ExcelToPdf() {
       errorMessage={errorMessage}
       seoContent={seoContent}
       accept=".xlsx,.xls,.csv"
-       
+      preview={
+        sheets.length > 0 ? (
+          <div className="w-full h-[500px] border border-slate-200 rounded-xl overflow-hidden bg-slate-50 relative group">
+            <div className="absolute inset-0">
+              <iframe 
+                ref={iframeRef}
                 title="Excel Preview Sandbox" 
                 className="w-full h-full border-none"
               />
