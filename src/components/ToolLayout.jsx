@@ -397,8 +397,8 @@ function ToolLayout({
                        </p>
                        <p className="text-xs text-slate-500 font-medium mt-0.5">
                          {Array.isArray(file) 
-                          ? `${file.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024 ? (file.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2) : 0} MB`
-                          : `${(file.size / 1024 / 1024).toFixed(2)} MB`
+                          ? `${(file.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)} MB`
+                          : `${(file.size / (1024 * 1024)).toFixed(2)} MB`
                         }
                        </p>
                      </div>
@@ -495,8 +495,8 @@ function ToolLayout({
                       </p>
                       <p className="text-xs text-slate-500 font-medium mt-0.5">
                          {Array.isArray(file) 
-                          ? `${file.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024 ? (file.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2) : 0} MB`
-                          : `${(file.size / 1024 / 1024).toFixed(2)} MB`
+                          ? `${(file.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)} MB`
+                          : `${(file.size / (1024 * 1024)).toFixed(2)} MB`
                         }
                       </p>
                     </div>

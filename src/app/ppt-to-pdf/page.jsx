@@ -428,7 +428,12 @@ function PptToPdf() {
       errorMessage={errorMessage}
       seoContent={seoContent}
       accept=".pptx"
-       
+      preview={
+        slides.length > 0 ? (
+          <div className="w-full h-[500px] border border-slate-200 rounded-xl overflow-hidden bg-slate-50 relative group">
+            <div className="absolute inset-0">
+              <iframe 
+                ref={iframeRef}
                 title="PPT Preview Sandbox" 
                 className="w-full h-full border-none"
               />
