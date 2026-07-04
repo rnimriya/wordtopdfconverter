@@ -1,0 +1,34 @@
+# Antigravity Platform Context & Guidelines
+
+## Overview
+Antigravity is a high-performance, privacy-first online document conversion platform built on Next.js/React and WebAssembly (Wasm). All document processing must happen securely on the user's local machine inside the browser.
+
+## Core Pillars
+When working on this repository, you must adhere strictly to the following four pillars:
+
+### Pillar 1: Core Technical Architecture (The Engine)
+* **100% Client-Side Processing:** All document conversions (DOCX to PDF, merge, split, compress) must execute locally inside the user's browser via a WebAssembly (Wasm) engine. Files must NEVER be transmitted to, read by, or stored on a remote backend server.
+* **Offline Capability & Speed:** The engine registers web workers efficiently so processing works even offline once the assets are loaded. Optimize bundle sizes to keep TTFB and LCP within Google Core Web Vitals thresholds.
+* **Unlimited File Size Handling:** Because processing utilizes the user's local CPU and RAM, there are no server-side file size restrictions.
+
+### Pillar 2: Technical SEO & Schema Automation
+* **Dynamic Metadata Generator:** Every tool route dynamically generates unique `<title>` and `<meta name="description">` tags targeting long-tail, high-intent privacy keywords (e.g., "Convert DOCX to PDF Offline," "100% Private Word to PDF Converter").
+* **Structured Data (JSON-LD):** Automatically inject valid JSON-LD schema into the `<head>` of tool pages, including `SoftwareApplication` (category UtilitiesApplication, price 0.00) and `FAQPage` schemas for rich snippets.
+
+### Pillar 3: UX/UI & Conversion Optimization
+* **Above-The-Fold Trust Signals:** Visually prominent badges are rendered immediately adjacent to the primary dropzone:
+  * 🔒 100% Local & Private (Files never leave your browser)
+  * ⚡ Instant WebAssembly Processing
+  * 📂 Unlimited File Size & Free Forever
+* **Ad-Placement Hygiene:** Ad container slots are structured strictly below the primary interactive conversion tool or confined to non-blocking side rails to prevent Top Heavy algorithm penalties.
+* **State Feedback:** Provide clear, multi-stage visual progress indicators during processing (e.g., Reading local file... -> Compiling layout via Wasm... -> Ready for Download).
+
+### Pillar 4: Content Strategy & Keyword Targeting
+* **Benefit-Driven H1s:** Use action-oriented, privacy-focused H1s such as "Convert Word to PDF Securely Inside Your Browser — No Server Uploads Required."
+* **Target Long-Tail Privacy Keywords:** Attract users searching for secure alternatives (HIPAA compliant PDF tool, confidential document converter).
+* **Semantic Hierarchy:** Structure all text using clean H1 -> H2 -> H3 markdown/HTML tags.
+
+## Execution Instructions for AI
+1. Always output complete, production-ready code or text.
+2. Ensure accessibility standards (WCAG AA) are met with proper ARIA labels, semantic roles, and keyboard navigation.
+3. Explicitly comment in the code where SEO schemas, Wasm hooks, and trust badges are integrated.

@@ -133,12 +133,16 @@ function Dropzone({ onFileSelect, accept =".pdf", multiple = false, title ="Onli
       <div className="w-full max-w-[800px] mx-auto pb-4">
         {/* Main Dropzone Card */}
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="File upload dropzone. Press enter to browse files."
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onButtonClick(e); }}
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
           onClick={onButtonClick}
-          className={`relative cursor-pointer flex flex-col items-center justify-center rounded-lg py-20 px-8 text-center transition-all duration-200 select-none bg-red-50 min-h-[320px] border-[2.5px] border-dashed border-red-300 w-full ${
+          className={`relative cursor-pointer flex flex-col items-center justify-center rounded-lg py-20 px-8 text-center transition-all duration-200 select-none bg-red-50 min-h-[320px] border-[2.5px] border-dashed border-red-300 w-full focus:outline-none focus:ring-4 focus:ring-red-500/30 ${
             isDragActive ? 'bg-red-100 scale-[1.01] border-red-400' : 'hover:bg-red-50/80'
           }`}
         >
@@ -202,8 +206,21 @@ function Dropzone({ onFileSelect, accept =".pdf", multiple = false, title ="Onli
               Max file size: Unlimited. 100% Free.
             </p>
             <p className="text-[12px] text-slate-400">
-              By proceeding, you agree to our <a href="/terms" className="hover:underline pointer-events-auto">Terms of Use</a>.
+              By proceeding, you agree to our <a href="/terms" className="hover:underline pointer-events-auto" onClick={(e) => e.stopPropagation()}>Terms of Use</a>.
             </p>
+          </div>
+        </div>
+
+        {/* Trust badges integrated here */}
+        <div className="mt-5 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-x-6 gap-y-3 text-[13px] font-semibold text-slate-600 px-4">
+          <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-100 shadow-sm">
+            <span>🔒</span> 100% Local & Private (Files never leave your browser)
+          </div>
+          <div className="flex items-center gap-1.5 bg-yellow-50 text-yellow-700 px-3 py-1.5 rounded-full border border-yellow-100 shadow-sm">
+            <span>⚡</span> Instant WebAssembly Processing
+          </div>
+          <div className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full border border-blue-100 shadow-sm">
+            <span>📂</span> Unlimited File Size & Free Forever
           </div>
         </div>
       </div>
