@@ -8,7 +8,7 @@ import * as pdfjs from 'pdfjs-dist';
 import confetti from 'canvas-confetti';
 import JSZip from 'jszip';
 
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 function ExtractImages() {
   const [file, setFile] = useState(null);

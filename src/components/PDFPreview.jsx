@@ -3,7 +3,7 @@ import * as pdfjs from 'pdfjs-dist';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 // Configure the pdfjs worker
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 function PDFPreview({ file, pageNumber = 1, scale = 1.0, onLoadSuccess, className ="" }) {
   const [pdf, setPdf] = useState(null);

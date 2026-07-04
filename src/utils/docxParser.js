@@ -3,7 +3,7 @@ import * as pdfjs from 'pdfjs-dist';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 
 // Configure the pdfjs worker
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 /**
  * Render a Word (.docx) file to a DOM element client-side using docx-preview.

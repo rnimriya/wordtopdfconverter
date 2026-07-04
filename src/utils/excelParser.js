@@ -2,7 +2,7 @@ import * as XLSX from 'xlsx';
 import * as pdfjs from 'pdfjs-dist';
 
 // Configure the pdfjs worker
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 /**
  * Parse an Excel (.xlsx/.xls/.csv) file and convert its sheets to HTML tables.

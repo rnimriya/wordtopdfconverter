@@ -1,7 +1,7 @@
 import * as pdfjs from 'pdfjs-dist';
 
 // Ensure worker path is configured
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 /**
  * Extracts text from the first 15 pages of a PDF file client-side.

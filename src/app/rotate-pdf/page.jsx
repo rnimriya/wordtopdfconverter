@@ -7,7 +7,7 @@ import { rotatePDF } from '../../utils/pdfProcessor.js';
 import * as pdfjs from 'pdfjs-dist';
 import confetti from 'canvas-confetti';
 
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 function RotatePdf() {
   const [file, setFile] = useState(null);
@@ -115,16 +115,36 @@ function RotatePdf() {
     setProgress(10);
 
     try {
-      // Wasm hook integration point
-      const blob = await rotatePDF(file, rotations, (p) => setProgress(10 + (p * 0.7))); // Maps 0-100 to 10-80
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('task', 'rotate');
+
+      setProgress(30);
+
+      const response = await fetch('/api/convert', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server responded with ${response.status}`);
+      }
 
       setProgress(80);
 
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       
-      let downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-rotate.pdf`;
+      let downloadName = 'processed-document.pdf';
+      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-rotate.pdf`;
+      
+      // ILovePDF can return zips for some tasks
+      if (blob.type === 'application/zip') {
+        downloadName = downloadName.replace('.pdf', '.zip');
+      }
 
       a.download = downloadName;
       document.body.appendChild(a);

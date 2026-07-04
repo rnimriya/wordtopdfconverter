@@ -351,55 +351,10 @@ function ToolLayout({
     };
   }, [title]);
 
-  // SEO schema integration point (SoftwareApplication & FAQPage)
-  const schemaData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        "name": title,
-        "operatingSystem": "Any",
-        "applicationCategory": "UtilitiesApplication",
-        "offers": {
-          "@type": "Offer",
-          "price": "0.00",
-          "priceCurrency": "USD"
-        },
-        "description": description
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": `Is the ${title} tool secure and private?`,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes, our tool runs 100% locally in your browser using WebAssembly. Your files are never uploaded to any server, ensuring maximum privacy."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": `What is the maximum file size for the ${title} tool?`,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "There are no file size limits. Because processing uses your local device, you can convert files of unlimited size completely free."
-            }
-          }
-        ]
-      }
-    ]
-  };
-
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-      />
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 max-w-[1600px] mx-auto w-full px-2 sm:px-4">
-        {/* Left Ad Column */}
-        <div className="hidden xl:block xl:col-span-2 relative">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 max-w-[1600px] mx-auto w-full px-2 sm:px-4">
+      {/* Left Ad Column */}
+      <div className="hidden xl:block xl:col-span-2 relative">
         <div className="sticky top-[100px] w-full h-[600px] bg-slate-100/50 border border-slate-200/50 rounded-xl flex items-center justify-center overflow-hidden">
           <p className="text-slate-400 text-xs font-medium rotate-[-90deg] tracking-widest uppercase">Advertisement</p>
         </div>
@@ -852,8 +807,9 @@ function ToolLayout({
         </div>
       </div>
 
+
+
     </div>
-    </>
   );
 }
 
