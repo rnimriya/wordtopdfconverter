@@ -60,14 +60,36 @@ export async function POST(req) {
     // 5. Add Files
     for (const inputFilePath of inputFilePaths) {
       const iLovePdfFile = new ILovePDFFile(inputFilePath);
-      await task.addFile(iLovePdfFile);
+      try {
+        await task.addFile(iLovePdfFile);
+      } catch (apiErr) {
+        console.error('ILovePDF AddFile Error:', apiErr.response?.data || apiErr.message);
+        return NextResponse.json({ 
+          error: `API Upload Error: ${apiErr.response?.data?.error?.message || apiErr.response?.data?.message || apiErr.message}` 
+        }, { status: 400 });
+      }
     }
 
     // 6. Process the task
-    await task.process(params);
+    try {
+      await task.process(params);
+    } catch (apiErr) {
+      console.error('ILovePDF Process Error:', apiErr.response?.data || apiErr.message);
+      return NextResponse.json({ 
+        error: `API Error: ${apiErr.response?.data?.error?.message || apiErr.message}` 
+      }, { status: 400 });
+    }
 
     // 7. Download output
-    const outputBuffer = await task.download();
+    let outputBuffer;
+    try {
+      outputBuffer = await task.download();
+    } catch (apiErr) {
+      console.error('ILovePDF Download Error:', apiErr.response?.data || apiErr.message);
+      return NextResponse.json({ 
+        error: `API Error: ${apiErr.response?.data?.error?.message || apiErr.message}` 
+      }, { status: 400 });
+    }
 
     // Cleanup
     for (const p of inputFilePaths) await fs.unlink(p).catch(console.error);
