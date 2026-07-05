@@ -9,6 +9,7 @@ import confetti from 'canvas-confetti';
 
 function CompressPdf() {
   const [file, setFile] = useState(null);
+  const [compressionLevel, setCompressionLevel] = useState('recommended');
   const [removeMetadata, setRemoveMetadata] = useState(true);
   const [isExecuting, setIsExecuting] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -39,6 +40,7 @@ function CompressPdf() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('task', 'compress');
+      formData.append('compression_level', compressionLevel);
 
       setProgress(30);
 
@@ -93,12 +95,18 @@ function CompressPdf() {
     <div className="space-y-4">
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
-          Compression Mode
+          Compression Level
         </label>
-        <div className="p-4 rounded-xl border border-primary-500/20 bg-primary-500/5 text-primary-400 text-xs font-semibold flex items-center gap-2">
-          <Sparkles className="h-4 w-4" />
-          <span>Optimal Client-Side Stream Compression</span>
-        </div>
+        <select
+          value={compressionLevel}
+          onChange={(e) => setCompressionLevel(e.target.value)}
+          disabled={isExecuting}
+          className="w-full bg-slate-900 border border-slate-700 text-slate-300 rounded-lg p-2 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+        >
+          <option value="extreme">Extreme Compression (Less quality, high compression)</option>
+          <option value="recommended">Recommended Compression (Good quality, good compression)</option>
+          <option value="low">Low Compression (High quality, less compression)</option>
+        </select>
       </div>
 
       <div className="flex items-center space-x-3 p-3 bg-slate-950/40 border border-slate-850 rounded-xl">
