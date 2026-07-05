@@ -1,19 +1,27 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileDigit, Loader2 } from 'lucide-react';
+import { FileDigit, AlertCircle } from 'lucide-react';
 import ToolLayout from '../../components/ToolLayout.jsx';
 import PDFPreview from '../../components/PDFPreview.jsx';
+import confetti from 'canvas-confetti';
 
 function NumberPages() {
   const [file, setFile] = useState(null);
+  const [verticalPos, setVerticalPos] = useState('bottom');
+  const [horizontalPos, setHorizontalPos] = useState('center');
   const [isExecuting, setIsExecuting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [pos, setPos] = useState('bottom-center');
-      const handleExecute = async () => {
+  const handleFileSelect = (selectedFile) => {
+    setFile(selectedFile);
+    setSuccessMessage('');
+    setErrorMessage('');
+  };
+
+  const handleExecute = async () => {
     if (!file) return;
 
     setIsExecuting(true);
@@ -24,7 +32,9 @@ function NumberPages() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('task', 'watermark');
+      formData.append('task', 'pagenumber');
+      formData.append('vertical_position', verticalPos);
+      formData.append('horizontal_position', horizontalPos);
 
       setProgress(30);
 
@@ -46,9 +56,8 @@ function NumberPages() {
       a.href = url;
       
       let downloadName = 'processed-document.pdf';
-      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-watermark.pdf`;
+      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-numbered.pdf`;
       
-      // ILovePDF can return zips for some tasks
       if (blob.type === 'application/zip') {
         downloadName = downloadName.replace('.pdf', '.zip');
       }
@@ -62,7 +71,6 @@ function NumberPages() {
       setProgress(100);
       setSuccessMessage("Processing successful! Download initialized.");
       
-      // Ensure confetti is called if available, else skip
       if (typeof confetti === 'function') {
         confetti({
           particleCount: 100,
@@ -78,121 +86,84 @@ function NumberPages() {
     }
   };
 
-        const schema = {
+  const controls = (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+          Vertical Position
+        </label>
+        <select
+          value={verticalPos}
+          onChange={(e) => setVerticalPos(e.target.value)}
+          disabled={isExecuting}
+          className="w-full bg-slate-900 border border-slate-700 text-slate-300 rounded-lg p-2 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+        >
+          <option value="top">Top</option>
+          <option value="bottom">Bottom</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+          Horizontal Position
+        </label>
+        <select
+          value={horizontalPos}
+          onChange={(e) => setHorizontalPos(e.target.value)}
+          disabled={isExecuting}
+          className="w-full bg-slate-900 border border-slate-700 text-slate-300 rounded-lg p-2 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+        >
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+    </div>
+  );
+
+  const schema = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Number Pages",
     "url": "https://wordtopdfconverter.online/number-pages",
-    "description": "A secure, fast, and free online tool to number your PDF files with 100% precision.",
+    "description": "Add page numbers to your PDF.",
     "applicationCategory": "UtilityApplication",
-    "operatingSystem": "Any",
-    "browserRequirements": "Requires JavaScript",
-    "offers": {
-      "@type": "Offer",
-      "price": "0.00",
-      "priceCurrency": "USD"
-    },
-    "featureList": [
-      "Perfect layout and formatting retention",
-      "256-bit SSL encryption",
-      "Automatic file deletion within 2 hours",
-      "No registration required"
-    ],
-    "creator": {
-      "@type": "Organization",
-      "name": "WordToPDFConverter"
-    }
+    "operatingSystem": "Any"
   };
 
   const seoContent = (
     <div className="prose prose-invert max-w-none space-y-8">
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-display text-white">Secure Number Pages - 100% Private Cloud Processing</h1>
+        <h1 className="text-3xl font-bold font-display text-white">Add Page Numbers to PDF</h1>
         <p className="text-slate-400 text-lg">
-          Our advanced online Number Pages tool makes it effortless to number your documents securely in seconds. Whether you need to finalize a presentation, share a business contract, or lock in academic formatting, our tool ensures your document looks exactly the same on any device.
+          Insert page numbers into your PDF document easily.
         </p>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">How to Number Pages Online Without Losing Formatting</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-2">
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">1. Upload Document</h3>
-            <p className="text-sm text-slate-500">Drag and drop your file into the secure upload area.</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">2. Secure Transfer</h3>
-            <p className="text-sm text-slate-500">Files are transmitted over an encrypted 256-bit SSL connection.</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">3. API Processing</h3>
-            <p className="text-sm text-slate-500">Our engine executes the processing with pixel-perfect accuracy.</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">4. Instant Download</h3>
-            <p className="text-sm text-slate-500">Save the perfectly formatted file directly to your device.</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">Security & Privacy Guarantee</h2>
-        <p className="text-slate-400">
-          <strong>Enterprise-Grade Security:</strong> Trust is our priority. We employ strict, zero-retention data policies to protect your sensitive information. All file uploads and downloads are routed through 256-bit SSL/TLS encrypted channels, preventing interception. Once your processing is complete, our automated systems permanently wipe your files from our servers within a maximum of 2 hours. We do not read, analyze, or share your document contents with any third parties.
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">Frequently Asked Questions</h2>
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-bold text-white">Will my converted file look exactly like the original?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes. Our Number Pages uses advanced layout mapping to ensure your fonts, margins, images, and tables remain perfectly intact during the process.</p>
-          </div>
-          <div>
-            <h3 className="font-bold text-white">Is it safe to process confidential documents online?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes, it is completely safe. All file transfers are secured with SSL encryption, and your documents are permanently deleted from our cloud servers within 2 hours.</p>
-          </div>
-          <div>
-            <h3 className="font-bold text-white">Can I use this tool on my iPhone or Android?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes. Our web-based tool is fully responsive and cloud-powered, allowing you to seamlessly process documents on any mobile browser without downloading an app.</p>
-          </div>
-          <div>
-            <h3 className="font-bold text-white">Is there a file size limit for the free tool?</h3>
-            <p className="text-slate-400 text-sm mt-1">No arbitrary limits are enforced for free usage. Our enterprise-grade cloud servers process even massive files in seconds.</p>
-          </div>
-        </div>
       </div>
     </div>
   );
 
-return (
+  return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
       <ToolLayout
-      seoContent={seoContent}
-      title="Number Pages"
-      description="Stamp page numbers programmatically in PDF document headers/footers."
-      icon={FileDigit}
-      file={file}
-      onFileSelect={(f) => { setFile(f); setSuccessMessage(''); setErrorMessage(''); }}
-      onClear={() => { setFile(null); setSuccessMessage(''); setErrorMessage(''); }}
-      controls={(<div className="space-y-4">
-        <select value={pos} onChange={(e) => setPos(e.target.value)} className="glass-input text-xs">
-          <option value="bottom-center">Bottom Center</option>
-          <option value="bottom-right">Bottom Right</option>
-        </select>
-        <button onClick={handleExecute} className="w-full glass-button-primary text-xs" disabled={!file}>Number Pages</button>
-      </div>)}
-      onExecute={handleExecute}
-      isExecuting={isExecuting}
-      progress={progress}
-      successMessage={successMessage}
-      errorMessage={errorMessage}
-    />
+        title="Number Pages"
+        description="Add page numbers to your PDF documents."
+        icon={FileDigit}
+        file={file}
+        onFileSelect={handleFileSelect}
+        onClear={() => { setFile(null); setSuccessMessage(''); setErrorMessage(''); }}
+        controls={controls}
+        onExecute={handleExecute}
+        isExecuting={isExecuting}
+        progress={progress}
+        successMessage={successMessage}
+        errorMessage={errorMessage}
+        seoContent={seoContent}
+        preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
+      />
     </>
   );
 }
