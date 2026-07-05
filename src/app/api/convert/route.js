@@ -65,8 +65,18 @@ export async function POST(req) {
         await task.addFile(iLovePdfFile);
       } catch (apiErr) {
         console.error('ILovePDF AddFile Error:', apiErr.response?.data || apiErr.message);
+        
+        // Extract deep param errors (e.g. "File extension csv not supported")
+        let detailMsg = '';
+        const paramObj = apiErr.response?.data?.error?.param;
+        if (paramObj) {
+          const values = Object.values(paramObj).flat();
+          if (values.length > 0) detailMsg = ` - ${values.join(', ')}`;
+        }
+
+        const baseMsg = apiErr.response?.data?.error?.message || apiErr.response?.data?.message || apiErr.message;
         return NextResponse.json({ 
-          error: `API Upload Error: ${apiErr.response?.data?.error?.message || apiErr.response?.data?.message || apiErr.message}` 
+          error: `API Upload Error: ${baseMsg}${detailMsg}` 
         }, { status: 400 });
       }
     }

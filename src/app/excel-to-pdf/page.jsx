@@ -304,7 +304,7 @@ return (
       successMessage={successMessage}
       errorMessage={errorMessage}
       seoContent={seoContent}
-      accept=".xlsx,.xls,.csv"
+      accept=".xlsx,.xls"
       preview={
         sheets.length > 0 ? (
           <div className="w-full h-[500px] border border-slate-200 rounded-xl overflow-hidden bg-slate-50 relative group">
