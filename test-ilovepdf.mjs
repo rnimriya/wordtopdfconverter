@@ -16,19 +16,20 @@ async function testILovePdf() {
         await task.start();
         console.log("Task started.");
         
+        const { default: ILovePDFFile } = await import('@ilovepdf/ilovepdf-nodejs/ILovePDFFile.js');
+        
         // We need a dummy word file to add
         fs.writeFileSync("test.docx", "test document");
         console.log("Dummy file created.");
         
-        const file = task.addFile("test.docx");
+        const iLovePdfFile = new ILovePDFFile("test.docx");
+        iLovePdfFile.filename = "test.docx"; // Force clean basename
+        await task.addFile(iLovePdfFile);
         await task.process();
         console.log("Task processed.");
         
         const result = await task.download();
-        console.log("Type of result:", typeof result);
-        console.log("Result is Uint8Array?", result instanceof Uint8Array);
-        console.log("Result is String?", typeof result === 'string');
-        console.log("Result is Buffer?", Buffer.isBuffer(result));
+        console.log("Result length:", result.length);
         
         fs.unlinkSync("test.docx");
         

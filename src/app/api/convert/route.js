@@ -60,6 +60,7 @@ export async function POST(req) {
     // 5. Add Files
     for (const inputFilePath of inputFilePaths) {
       const iLovePdfFile = new ILovePDFFile(inputFilePath);
+      iLovePdfFile.filename = path.basename(inputFilePath); // Fix SDK bug on Windows where it uses lastIndexOf('/')
       try {
         await task.addFile(iLovePdfFile);
       } catch (apiErr) {
