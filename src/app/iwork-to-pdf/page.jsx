@@ -1,1 +1,71 @@
-"use client";\n\nimport React, { useState } from 'react';\nimport { FileText, AlertCircle, Lock } from 'lucide-react';\nimport ToolLayout from '../../components/ToolLayout.jsx';\n\nfunction iWorktoPDF() {\n  const [file, setFile] = useState(null);\n\n  const controls = (\n    <div className="space-y-4">\n      <div className="p-4 bg-primary-950/40 border border-primary-900 rounded-xl space-y-2">\n        <h4 className="text-sm font-bold text-primary-400 flex items-center gap-2">\n          <Lock className="h-4 w-4" />\n          Enterprise Feature\n        </h4>\n        <p className="text-xs text-primary-200/70 leading-relaxed">\n          iWork to PDF conversion requires dedicated rendering engines (like LibreOffice or CAD binaries). This feature is currently in development for our Enterprise tier.\n        </p>\n      </div>\n      <button className="w-full glass-button text-xs flex items-center justify-center space-x-2 opacity-50 cursor-not-allowed" disabled>\n        <FileText className="h-4 w-4" />\n        <span>Coming Soon</span>\n      </button>\n    </div>\n  );\n\n  const schema = {\n    "@context": "https://schema.org",\n    "@type": "WebApplication",\n    "name": "iWork to PDF",\n    "url": "https://wordtopdfconverter.online/iwork-to-pdf",\n    "description": "Convert iWork to PDF online.",\n    "applicationCategory": "UtilityApplication",\n    "operatingSystem": "Any"\n  };\n\n  const seoContent = (\n    <div className="prose prose-invert max-w-none space-y-8">\n      <div className="space-y-4">\n        <h1 className="text-3xl font-bold font-display text-white">iWork to PDF - Enterprise Grade Conversion</h1>\n        <p className="text-slate-400 text-lg">\n          We are building dedicated rendering engines to accurately convert proprietary formats. Stay tuned for the release of our Enterprise conversion tools.\n        </p>\n      </div>\n    </div>\n  );\n\n  return (\n    <>\n      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />\n      <ToolLayout\n        title="iWork to PDF"\n        description="Coming Soon to Enterprise Tier"\n        icon={FileText}\n        file={file}\n        onFileSelect={(f) => setFile(f)}\n        onClear={() => setFile(null)}\n        controls={controls}\n        onExecute={() => {}}\n        isExecuting={false}\n        progress={0}\n        successMessage=""\n        errorMessage=""\n        seoContent={seoContent}\n      />\n    </>\n  );\n}\n\nexport default iWorktoPDF;
+"use client";
+
+import React, { useState } from 'react';
+import { FileText, AlertCircle, Lock } from 'lucide-react';
+import ToolLayout from '../../components/ToolLayout.jsx';
+
+function iWorktoPDF() {
+  const [file, setFile] = useState(null);
+
+  const controls = (
+    <div className="space-y-4">
+      <div className="p-4 bg-primary-950/40 border border-primary-900 rounded-xl space-y-2">
+        <h4 className="text-sm font-bold text-primary-400 flex items-center gap-2">
+          <Lock className="h-4 w-4" />
+          Enterprise Feature
+        </h4>
+        <p className="text-xs text-primary-200/70 leading-relaxed">
+          iWork to PDF conversion requires dedicated rendering engines (like LibreOffice or CAD binaries). This feature is currently in development for our Enterprise tier.
+        </p>
+      </div>
+      <button className="w-full glass-button text-xs flex items-center justify-center space-x-2 opacity-50 cursor-not-allowed" disabled>
+        <FileText className="h-4 w-4" />
+        <span>Coming Soon</span>
+      </button>
+    </div>
+  );
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "iWork to PDF",
+    "url": "https://wordtopdfconverter.online/iwork-to-pdf",
+    "description": "Convert iWork to PDF online.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Any"
+  };
+
+  const seoContent = (
+    <div className="prose prose-invert max-w-none space-y-8">
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold font-display text-white">iWork to PDF - Enterprise Grade Conversion</h1>
+        <p className="text-slate-400 text-lg">
+          We are building dedicated rendering engines to accurately convert proprietary formats. Stay tuned for the release of our Enterprise conversion tools.
+        </p>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      <ToolLayout
+        title="iWork to PDF"
+        description="Coming Soon to Enterprise Tier"
+        icon={FileText}
+        file={file}
+        onFileSelect={(f) => setFile(f)}
+        onClear={() => setFile(null)}
+        controls={controls}
+        onExecute={() => {}}
+        isExecuting={false}
+        progress={0}
+        successMessage=""
+        errorMessage=""
+        seoContent={seoContent}
+      />
+    </>
+  );
+}
+
+export default iWorktoPDF;
