@@ -43,6 +43,7 @@ function ProtectPdf() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('task', 'protect');
+      if (userPassword) formData.append('password', userPassword);
 
       setProgress(30);
 
@@ -312,7 +313,7 @@ function ProtectPdf() {
       successMessage={successMessage}
       errorMessage={errorMessage}
       seoContent={seoContent}
-      preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
+      preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
     />
     </>
   );

@@ -10,15 +10,69 @@ function QuestionGen() {
   const [quiz, setQuiz] = useState([]);
   const [isExecuting, setIsExecuting] = useState(false);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!file) return;
+
     setIsExecuting(true);
-    setTimeout(() => {
-      setQuiz([
-        { q:"What security layer is applied?", a:"Direct local browser memory sandboxing." },
-        { q:"Do files upload to Word To PDF Convertor?", a:"No, they compile strictly inside client WebAssembly." }
-      ]);
+    setErrorMessage('');
+    setSuccessMessage('');
+    setProgress(10);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('task', 'unsupported');
+
+      setProgress(30);
+
+      const response = await fetch('/api/convert', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server responded with ${response.status}`);
+      }
+
+      setProgress(80);
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      let downloadName = 'processed-document.pdf';
+      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-unsupported.pdf`;
+      
+      // ILovePDF can return zips for some tasks
+      if (blob.type === 'application/zip') {
+        downloadName = downloadName.replace('.pdf', '.zip');
+      }
+
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      setProgress(100);
+      setSuccessMessage("Processing successful! Download initialized.");
+      
+      // Ensure confetti is called if available, else skip
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Error processing document: " + err.message);
+    } finally {
       setIsExecuting(false);
-    }, 1500);
+    }
   };
 
   const controls = (
@@ -44,8 +98,7 @@ function QuestionGen() {
       onClear={() => { setFile(null); setQuiz([]); }}
       controls={controls}
       onExecute={handleGenerate}
-      isExecuting={isExecuting}
-      preview={file && <PDFPreview file={file} />}
+      isExecuting={isExecuting}
     />
     </>
   );

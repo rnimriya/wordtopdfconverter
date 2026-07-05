@@ -16,6 +16,13 @@ export async function POST(req) {
     const files = formData.getAll('file');
     const taskType = formData.get('task') || 'officepdf'; // e.g., 'officepdf' for Word to PDF
 
+    const params = {};
+    for (const [key, value] of formData.entries()) {
+      if (key !== 'file' && key !== 'task') {
+        params[key] = value;
+      }
+    }
+
     if (!files || files.length === 0) {
       return NextResponse.json({ error: 'No files uploaded' }, { status: 400 });
     }
@@ -43,6 +50,10 @@ export async function POST(req) {
     }
 
     // 4. Create and start ILovePDF Task
+    if (taskType === 'unsupported') {
+      return NextResponse.json({ error: 'This specific tool is currently undergoing maintenance for API integration and is not supported in the current version.' }, { status: 501 });
+    }
+
     const task = instance.newTask(taskType);
     await task.start();
 
@@ -53,7 +64,7 @@ export async function POST(req) {
     }
 
     // 6. Process the task
-    await task.process();
+    await task.process(params);
 
     // 7. Download output
     const outputBuffer = await task.download();

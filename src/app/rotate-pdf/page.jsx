@@ -118,6 +118,9 @@ function RotatePdf() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('task', 'rotate');
+      // Pass the first rotation angle or default to 90
+      const rotationAngle = Object.values(rotations).find(r => r > 0) || 90;
+      formData.append('rotate', rotationAngle);
 
       setProgress(30);
 

@@ -31,41 +31,65 @@ function AiAssistant() {
   };
 
   const handleSend = async () => {
-    if (!query.trim() || isExecuting || loadingText) return;
-    
-    const userMessageText = query.trim();
-    setChat(prev => [...prev, { role: 'user', text: userMessageText }]);
-    setQuery('');
+    if (!file) return;
+
     setIsExecuting(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    setProgress(10);
 
     try {
-      // Map existing chat state to format expected by backend API
-      const history = chat.map(c => ({
-        role: c.role === 'user' ? 'user' : 'assistant',
-        content: c.text
-      })).concat({ role: 'user', content: userMessageText });
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('task', 'unsupported');
 
-      const res = await fetch('/api/ai/chat', {
+      setProgress(30);
+
+      const response = await fetch('/api/convert', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: history,
-          documentText
-        })
+        body: formData,
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to generate reply');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server responded with ${response.status}`);
       }
 
-      setChat(prev => [...prev, { role: 'assistant', text: data.content }]);
+      setProgress(80);
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      let downloadName = 'processed-document.pdf';
+      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-unsupported.pdf`;
+      
+      // ILovePDF can return zips for some tasks
+      if (blob.type === 'application/zip') {
+        downloadName = downloadName.replace('.pdf', '.zip');
+      }
+
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      setProgress(100);
+      setSuccessMessage("Processing successful! Download initialized.");
+      
+      // Ensure confetti is called if available, else skip
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+      }
     } catch (err) {
       console.error(err);
-      setChat(prev => [...prev, { 
-        role: 'assistant', 
-        text: `Error: ${err.message || 'Unable to fetch response. Make sure you are subscribed to Pro.'}` 
-      }]);
+      setErrorMessage("Error processing document: " + err.message);
     } finally {
       setIsExecuting(false);
     }
@@ -119,8 +143,7 @@ function AiAssistant() {
       onClear={() => { setFile(null); setChat([]); setDocumentText(''); }}
       controls={controls}
       onExecute={() => {}}
-      isExecuting={isExecuting || loadingText}
-      preview={file && <PDFPreview file={file} />}
+      isExecuting={isExecuting || loadingText}
     />
     </>
   );

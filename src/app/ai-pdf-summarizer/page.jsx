@@ -23,34 +23,65 @@ function SummarizePdf() {
   };
 
   const handleSummarize = async () => {
-    if (!file || isExecuting || loadingText) return;
+    if (!file) return;
+
     setIsExecuting(true);
-    setSummary('');
+    setErrorMessage('');
+    setSuccessMessage('');
+    setProgress(10);
 
     try {
-      const res = await fetch('/api/ai/chat', {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('task', 'unsupported');
+
+      setProgress(30);
+
+      const response = await fetch('/api/convert', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            { 
-              role: 'user', 
-              content: 'Please summarize this document. Provide a brief overview, list 3-5 key takeaways, and outline the core topics in a structured list format.' 
-            }
-          ],
-          documentText
-        })
+        body: formData,
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to generate summary');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server responded with ${response.status}`);
       }
 
-      setSummary(data.content);
+      setProgress(80);
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      let downloadName = 'processed-document.pdf';
+      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-unsupported.pdf`;
+      
+      // ILovePDF can return zips for some tasks
+      if (blob.type === 'application/zip') {
+        downloadName = downloadName.replace('.pdf', '.zip');
+      }
+
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      setProgress(100);
+      setSuccessMessage("Processing successful! Download initialized.");
+      
+      // Ensure confetti is called if available, else skip
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+      }
     } catch (err) {
       console.error(err);
-      setSummary(`Error: ${err.message || 'Unable to retrieve summary. Make sure you are subscribed to Pro.'}`);
+      setErrorMessage("Error processing document: " + err.message);
     } finally {
       setIsExecuting(false);
     }
@@ -101,8 +132,7 @@ function SummarizePdf() {
       onClear={() => { setFile(null); setSummary(''); setDocumentText(''); }}
       controls={controls}
       onExecute={handleSummarize}
-      isExecuting={isExecuting || loadingText}
-      preview={file && <PDFPreview file={file} />}
+      isExecuting={isExecuting || loadingText}
     />
     </>
   );

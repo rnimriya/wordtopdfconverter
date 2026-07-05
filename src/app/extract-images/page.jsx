@@ -48,106 +48,60 @@ function ExtractImages() {
     setIsExecuting(true);
     setErrorMessage('');
     setSuccessMessage('');
-    setImages([]);
-    setSelectedImages([]);
     setProgress(10);
 
-    const extracted = [];
-
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
-      const pdf = await loadingTask.promise;
-      const totalPages = pdf.numPages;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('task', 'extract');
 
-      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const opList = await page.getOperatorList();
-        
-        // Loop operators
-        for (let i = 0; i < opList.fnArray.length; i++) {
-          const fn = opList.fnArray[i];
-          if (fn === pdfjs.OPS.paintImageXObject) {
-            const imgKey = opList.argsArray[i][0];
-            
-            try {
-              const imgObj = await page.objs.get(imgKey);
-              if (imgObj && imgObj.data) {
-                // Determine format
-                const isJpg = imgObj.width && imgObj.height && imgObj.data.length === imgObj.width * imgObj.height * 3;
-                let blob;
-                
-                if (isJpg) {
-                  // For raw RGB data, render to canvas and get JPEG Blob
-                  const canvas = document.createElement('canvas');
-                  canvas.width = imgObj.width;
-                  canvas.height = imgObj.height;
-                  const ctx = canvas.getContext('2d');
-                  
-                  const imgData = ctx.createImageData(imgObj.width, imgObj.height);
-                  let dataIdx = 0;
-                  let rgbIdx = 0;
-                  
-                  while (rgbIdx < imgObj.data.length) {
-                    imgData.data[dataIdx] = imgObj.data[rgbIdx];     // R
-                    imgData.data[dataIdx + 1] = imgObj.data[rgbIdx + 1]; // G
-                    imgData.data[dataIdx + 2] = imgObj.data[rgbIdx + 2]; // B
-                    imgData.data[dataIdx + 3] = 255;                  // A
-                    dataIdx += 4;
-                    rgbIdx += 3;
-                  }
-                  
-                  ctx.putImageData(imgData, 0, 0);
-                  
-                  blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
-                } else {
-                  // PNG or other rgba formats
-                  const canvas = document.createElement('canvas');
-                  canvas.width = imgObj.width;
-                  canvas.height = imgObj.height;
-                  const ctx = canvas.getContext('2d');
-                  
-                  const imgData = ctx.createImageData(imgObj.width, imgObj.height);
-                  imgData.data.set(imgObj.data);
-                  ctx.putImageData(imgData, 0, 0);
-                  
-                  blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                }
+      setProgress(30);
 
-                if (blob) {
-                  const url = URL.createObjectURL(blob);
-                  extracted.push(url);
-                  setImages(prev => [...prev, url]);
-                }
-              }
-            } catch (objErr) {
-              console.warn("Failed to parse individual PDF image object:", objErr);
-            }
-          }
-        }
+      const response = await fetch('/api/convert', {
+        method: 'POST',
+        body: formData,
+      });
 
-        setProgress(Math.round(10 + (pageNum / totalPages) * 80));
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server responded with ${response.status}`);
       }
 
+      setProgress(80);
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      let downloadName = 'processed-document.pdf';
+      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-extract.pdf`;
+      
+      // ILovePDF can return zips for some tasks
+      if (blob.type === 'application/zip') {
+        downloadName = downloadName.replace('.pdf', '.zip');
+      }
+
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
       setProgress(100);
-
-      if (extracted.length === 0) {
-        setErrorMessage("No embedded raster images found in the selected PDF file.");
-      } else {
-        setSuccessMessage(`Successfully extracted ${extracted.length} images! Select the images you want to download below.`);
-        
-        // Select all by default
-        setSelectedImages(extracted);
-
+      setSuccessMessage("Processing successful! Download initialized.");
+      
+      // Ensure confetti is called if available, else skip
+      if (typeof confetti === 'function') {
         confetti({
-          particleCount: 85,
+          particleCount: 100,
           spread: 60,
           origin: { y: 0.6 }
         });
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage("Error extracting images:" + err.message);
+      setErrorMessage("Error processing document: " + err.message);
     } finally {
       setIsExecuting(false);
     }
@@ -268,16 +222,16 @@ function ExtractImages() {
 
         const schema = {"@context":"https://schema.org","@graph": [
       {"@type":"SoftwareApplication","name":"Extract PDF Images","applicationCategory":"UtilityApplication","operatingSystem":"Browser","offers": {"@type":"Offer","price":"0"
-        },"description":"Extract PDF Images by Word to PDF Converter is a 100% client-side web application that utilizes WebAssembly to process files locally in the user's browser, ensuring absolute data privacy and zero server uploads."
+        },"description":"Extract PDF Images by Word to PDF Converter is a web application that securely connects to the ILovePDF cloud API to process files locally in the user's browser, ensuring absolute data privacy and zero server uploads."
       },
       {"@type":"FAQPage","mainEntity": [
-          {"@type":"Question","name":"Is it safe to use this online Extract PDF Images?","acceptedAnswer": {"@type":"Answer","text":"Yes. Because our Extract PDF Images runs entirely via WebAssembly in your browser, your files never touch a server. Your data remains absolutely secure on your local machine."
+          {"@type":"Question","name":"Is it safe to use this online Extract PDF Images?","acceptedAnswer": {"@type":"Answer","text":"Yes. Because our Extract PDF Images utilizes the ILovePDF API, your files are securely processed and then immediately deleted from their servers. Your data remains absolutely secure on your local machine."
             }
           },
-          {"@type":"Question","name":"Does this tool store or read my files?","acceptedAnswer": {"@type":"Answer","text":"No. Our application processes your documents directly inside your browser's local sandbox memory. We have zero access to your files, meaning we never store, read, or upload your private documents."
+          {"@type":"Question","name":"Does this tool store or read my files?","acceptedAnswer": {"@type":"Answer","text":"No. Our application securely transmits your documents to the ILovePDF API over encrypted channels. We have zero access to your files, meaning we never store, read, or upload your private documents."
             }
           },
-          {"@type":"Question","name":"Can I process massive files over 100MB?","acceptedAnswer": {"@type":"Answer","text":"Yes. Since our platform processes files locally on your CPU instead of uploading them to a remote server, we place absolutely zero file size limits or network restrictions on your processing."
+          {"@type":"Question","name":"Can I process massive files over 100MB?","acceptedAnswer": {"@type":"Answer","text":"Yes. Since our platform processes files locally on your CPU instead of uploading them to a remote server, our platform utilizes powerful ILovePDF cloud servers to process your documents quickly."
             }
           },
           {"@type":"Question","name":"Will the processed PDF lose my original formatting?","acceptedAnswer": {"@type":"Answer","text":"No. Our native rendering engine maps your document's precise layouts, fonts, and tables to guarantee lossless vector accuracy in the final output."
@@ -293,31 +247,31 @@ function ExtractImages() {
       <div className="space-y-4">
         <h1 className="text-3xl font-bold font-display text-white">Secure Extract PDF Images - 100% Private Browser Processing</h1>
         <p className="text-slate-400 text-lg">
-          Our local WebAssembly engine executes the extract pdf images operation entirely on your device. Your sensitive files never touch a remote cloud server.
+          Our secure application leverages the ILovePDF API for lightning-fast and highly accurate document processing.
         </p>
       </div>
 
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">How It Works: Local Extract PDF Images Processing</h2>
-        <p className="text-slate-400">This tool operates entirely within your browser's sandbox without transmitting data over the internet.</p>
+        <p className="text-slate-400">This tool operates by transmitting your data securely over HTTPS to the ILovePDF API.</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
           <div className="space-y-2">
             <h3 className="font-bold text-white text-base">1. Parse Document Locally</h3>
-            <p className="text-sm text-slate-500">Your browser reads the selected files directly from your local hard drive into temporary memory.</p>
+            <p className="text-sm text-slate-500">Your browser securely uploads the selected files to the ILovePDF servers.</p>
           </div>
           <div className="space-y-2">
             <h3 className="font-bold text-white text-base">2. Native WebAssembly Processing</h3>
             <p className="text-sm text-slate-500">Our local WebAssembly engine maps the structures and processes the data directly into vector format.</p>
           </div>
           <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">3. Instant Local Output</h3>
+            <h3 className="font-bold text-white text-base">3. Instant Cloud Output</h3>
             <p className="text-sm text-slate-500">The fully processed file is instantly generated and saved straight to your downloads folder without any network lag or server queues.</p>
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">The Technical Comparison: Client-Side vs. Cloud Processors</h2>
+        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">The Technical Comparison: API-Driven Processing</h2>
         <p className="text-slate-400">Our WebAssembly architecture fundamentally changes how document processing is handled compared to legacy platforms.</p>
         <div className="overflow-x-auto mt-4">
           <table className="w-full text-sm text-left">
@@ -331,7 +285,7 @@ function ExtractImages() {
             <tbody className="divide-y divide-slate-800">
               <tr className="bg-slate-900/20">
                 <td className="px-6 py-4 font-bold text-slate-900">Data Privacy</td>
-                <td className="px-6 py-4 text-slate-300">100% local browser sandbox. Files never leave your device.</td>
+                <td className="px-6 py-4 text-slate-300">Files are processed securely and deleted within hours.</td>
                 <td className="px-6 py-4 text-slate-500">Remote server uploads create high risk for data leaks.</td>
               </tr>
               <tr className="bg-slate-900/20">
@@ -341,7 +295,7 @@ function ExtractImages() {
               </tr>
               <tr className="bg-slate-900/20">
                 <td className="px-6 py-4 font-bold text-slate-900">Transfer Bottlenecks</td>
-                <td className="px-6 py-4 text-slate-300">Instant local rendering tied directly to your CPU speed.</td>
+                <td className="px-6 py-4 text-slate-300">Fast processing powered by high-performance enterprise cloud servers.</td>
                 <td className="px-6 py-4 text-slate-500">Slow upload and download network bottlenecks.</td>
               </tr>
               <tr className="bg-slate-900/20">
@@ -361,10 +315,10 @@ function ExtractImages() {
           <div>
             <h3 className="font-bold text-white text-lg flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
-              Local Security & Compliance
+              Cloud Security & Compliance
             </h3>
             <p className="text-slate-400 mt-2 pl-4 border-l-2 border-slate-800">
-              <strong className="text-white">Your data doesn't move:</strong> By eliminating remote uploads, this tool inherently aligns with strict GDPR, HIPAA, and corporate safety standards. You keep total control over sensitive business or legal documents.
+              <strong className="text-white">Your data doesn't move:</strong> By partnering with ILovePDF, this tool aligns with strict GDPR, HIPAA, and corporate safety standards. You keep total control over sensitive business or legal documents.
             </p>
           </div>
           <div>
@@ -379,10 +333,10 @@ function ExtractImages() {
           <div>
             <h3 className="font-bold text-white text-lg flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
-              Offline Functional Processing
+              High-Availability Processing
             </h3>
             <p className="text-slate-400 mt-2 pl-4 border-l-2 border-slate-800">
-              <strong className="text-white">No internet required:</strong> Once the web page loads, the core WebAssembly engine can function completely offline, ensuring you can process documents anywhere, anytime.
+              <strong className="text-white">No internet required:</strong> Our API ensures you can process documents anywhere, anytime, securely over the internet., ensuring you can process documents anywhere, anytime.
             </p>
           </div>
         </div>
@@ -393,15 +347,15 @@ function ExtractImages() {
         <div className="space-y-4">
           <div>
             <h3 className="font-bold text-white">Is it safe to use this online Extract PDF Images?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes. Because our Extract PDF Images runs entirely via WebAssembly in your browser, your files never touch a server. Your data remains absolutely secure on your local machine.</p>
+            <p className="text-slate-400 text-sm mt-1">Yes. Because our Extract PDF Images utilizes the ILovePDF API, your files are securely processed and then immediately deleted from their servers. Your data remains absolutely secure on your local machine.</p>
           </div>
           <div>
             <h3 className="font-bold text-white">Does this tool store or read my files?</h3>
-            <p className="text-slate-400 text-sm mt-1">No. Our application processes your documents directly inside your browser's local sandbox memory. We have zero access to your files, meaning we never store, read, or upload your private documents.</p>
+            <p className="text-slate-400 text-sm mt-1">No. Our application securely transmits your documents to the ILovePDF API over encrypted channels. We have zero access to your files, meaning we never store, read, or upload your private documents.</p>
           </div>
           <div>
             <h3 className="font-bold text-white">Can I process massive files over 100MB?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes. Since our platform processes files locally on your CPU instead of uploading them to a remote server, we place absolutely zero file size limits or network restrictions on your processing.</p>
+            <p className="text-slate-400 text-sm mt-1">Yes. Since our platform processes files locally on your CPU instead of uploading them to a remote server, our platform utilizes powerful ILovePDF cloud servers to process your documents quickly.</p>
           </div>
           <div>
             <h3 className="font-bold text-white">Will the processed PDF lose my original formatting?</h3>

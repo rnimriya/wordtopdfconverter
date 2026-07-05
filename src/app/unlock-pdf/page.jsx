@@ -25,6 +25,7 @@ function UnlockPDF() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('task', 'unlock');
+      if (pass) formData.append('password', pass);
 
       setProgress(30);
 
@@ -244,7 +245,7 @@ return (
       progress={progress}
       successMessage={successMessage}
       errorMessage={errorMessage}
-      preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
+      preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
     />
     </>
   );

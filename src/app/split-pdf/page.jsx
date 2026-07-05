@@ -25,6 +25,8 @@ function SplitPDF() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('task', 'split');
+      formData.append('split_mode', 'ranges');
+      if (splitRange) formData.append('ranges', splitRange);
 
       setProgress(30);
 
@@ -246,7 +248,7 @@ function SplitPDF() {
         successMessage={successMessage}
         errorMessage={errorMessage}
         seoContent={seoContent}
-        preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
+        preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
       />
     </>
   );

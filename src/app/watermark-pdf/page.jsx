@@ -25,6 +25,8 @@ function WatermarkPDF() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('task', 'watermark');
+      formData.append('mode', 'text');
+      if (watermark) formData.append('text', watermark);
 
       setProgress(30);
 
@@ -244,7 +246,7 @@ return (
       progress={progress}
       successMessage={successMessage}
       errorMessage={errorMessage}
-      preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
+      preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
     />
     </>
   );
