@@ -38,8 +38,8 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            // Allow self resources, google fonts, unpkg worker CDN for PDFjs, and Gemini connection URLs.
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src 'self' https://generativelanguage.googleapis.com https://unpkg.com; frame-src 'self';",
+            // Allow self resources, google fonts, unpkg worker CDN for PDFjs, Gemini, and Google Analytics.
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://generativelanguage.googleapis.com https://unpkg.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; frame-src 'self';",
           },
         ],
       },
