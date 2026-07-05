@@ -7,7 +7,7 @@ async function testILovePdf() {
     try {
         const instance = new ILovePDFApi(
             "project_public_66d403538d974253c4b67ba63e2c04ad_vExfq24612b730319566d8e93efa1085a8f3c",
-            "ysecret_key_cea62d355b43c6a529349b599af5c66e_OpEdy6f0a200b260b53b109b08aa8fcca4c5f"
+            "secret_key_cea62d355b43c6a529349b599af5c66e_OpEdy6f0a200b260b53b109b08aa8fcca4c5f"
         );
         
         console.log("Instance created.");
