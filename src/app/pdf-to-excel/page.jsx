@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileText, ArrowRightLeft, Grid } from 'lucide-react';
+import { Table, ArrowRightLeft, Loader2, AlertCircle } from 'lucide-react';
 import ToolLayout from '../../components/ToolLayout.jsx';
 import PDFPreview from '../../components/PDFPreview.jsx';
-import { extractTableFromPDF, createExcelFromRows } from '../../utils/excelParser.js';
+import { createExcelFromPdf } from '../../utils/excelParser.js';
 import confetti from 'canvas-confetti';
 
 function PdfToExcel() {
@@ -20,12 +20,6 @@ function PdfToExcel() {
     setErrorMessage('');
   };
 
-  const clearFile = () => {
-    setFile(null);
-    setSuccessMessage('');
-    setErrorMessage('');
-  };
-
   const handleConvert = async () => {
     if (!file) return;
 
@@ -35,37 +29,19 @@ function PdfToExcel() {
     setProgress(10);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('task', 'pdfexcel');
-
-      setProgress(30);
-
-      const response = await fetch('/api/convert', {
-        method: 'POST',
-        body: formData,
+      // Process PDF to Excel entirely in the browser
+      const blob = await createExcelFromPdf(file, (p) => {
+        setProgress(10 + Math.floor(p * 80)); // 10% to 90%
       });
+      
+      setProgress(95);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Server responded with ${response.status}`);
-      }
-
-      setProgress(80);
-
-      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       
-      let downloadName = 'processed-document.pdf';
-      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-pdfexcel.pdf`;
+      const downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-converted.xlsx`;
       
-      // ILovePDF can return zips for some tasks
-      if (blob.type === 'application/zip') {
-        downloadName = downloadName.replace('.pdf', '.zip');
-      }
-
       a.download = downloadName;
       document.body.appendChild(a);
       a.click();
@@ -75,7 +51,6 @@ function PdfToExcel() {
       setProgress(100);
       setSuccessMessage("Processing successful! Download initialized.");
       
-      // Ensure confetti is called if available, else skip
       if (typeof confetti === 'function') {
         confetti({
           particleCount: 100,
@@ -85,7 +60,7 @@ function PdfToExcel() {
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage("Error processing document: " + err.message);
+      setErrorMessage("Error converting document: " + err.message);
     } finally {
       setIsExecuting(false);
     }
@@ -93,124 +68,82 @@ function PdfToExcel() {
 
   const controls = (
     <div className="space-y-4">
-      <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-xs font-semibold flex items-center gap-2">
-        <Grid className="h-4 w-4" />
-        <span>Tabular Matrix Alignment Mode</span>
+      <div className="p-4 rounded-xl border border-primary-500/20 bg-primary-500/5 text-primary-400 text-xs font-semibold flex items-center gap-2">
+        <ArrowRightLeft className="h-4 w-4" />
+        <span>Tabular Data Reconstruction Mode</span>
       </div>
-      <p className="text-[11px] text-slate-500 leading-relaxed">This converter securely sends your file to the ILovePDF API for perfect processing. Your data is safely handled and the output is guaranteed to maintain precision.</p>
+      <div className="p-3 bg-slate-950/40 border border-slate-850 rounded-xl space-y-1.5">
+        <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+          <AlertCircle className="h-3.5 w-3.5 text-secondary-500" />
+          Client-Side Processing
+        </h4>
+        <p className="text-[10px] text-slate-500 leading-normal">
+          Your document is securely processed entirely within your browser. No files are uploaded to our servers, ensuring 100% privacy.
+        </p>
+      </div>
+      <button 
+        onClick={handleConvert} 
+        className="w-full glass-button-primary text-xs flex items-center justify-center space-x-2" 
+        disabled={!file || isExecuting}
+      >
+        {isExecuting ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Converting...</span>
+          </>
+        ) : (
+          <>
+            <Table className="h-4 w-4" />
+            <span>Convert to Excel</span>
+          </>
+        )}
+      </button>
     </div>
   );
 
-      const schema = {
+  const schema = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "PDF To Excel",
     "url": "https://wordtopdfconverter.online/pdf-to-excel",
-    "description": "A secure, fast, and free online tool to pdf your PDF files with 100% precision.",
+    "description": "A secure, fast, and free online tool to convert PDF to Excel locally.",
     "applicationCategory": "UtilityApplication",
-    "operatingSystem": "Any",
-    "browserRequirements": "Requires JavaScript",
-    "offers": {
-      "@type": "Offer",
-      "price": "0.00",
-      "priceCurrency": "USD"
-    },
-    "featureList": [
-      "Perfect layout and formatting retention",
-      "256-bit SSL encryption",
-      "Automatic file deletion within 2 hours",
-      "No registration required"
-    ],
-    "creator": {
-      "@type": "Organization",
-      "name": "WordToPDFConverter"
-    }
+    "operatingSystem": "Any"
   };
 
   const seoContent = (
     <div className="prose prose-invert max-w-none space-y-8">
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-display text-white">Secure PDF To Excel - 100% Private Cloud Processing</h1>
+        <h1 className="text-3xl font-bold font-display text-white">Secure PDF To Excel - 100% Private Local Processing</h1>
         <p className="text-slate-400 text-lg">
-          Our advanced online PDF To Excel tool makes it effortless to pdf your documents securely in seconds. Whether you need to finalize a presentation, share a business contract, or lock in academic formatting, our tool ensures your document looks exactly the same on any device.
+          Our advanced online PDF To Excel tool extracts tabular data from your documents directly in your browser. No files are uploaded, guaranteeing absolute privacy and zero risk of interception.
         </p>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">How to PDF To Excel Online Without Losing Formatting</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-2">
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">1. Upload Document</h3>
-            <p className="text-sm text-slate-500">Drag and drop your file into the secure upload area.</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">2. Secure Transfer</h3>
-            <p className="text-sm text-slate-500">Files are transmitted over an encrypted 256-bit SSL connection.</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">3. API Processing</h3>
-            <p className="text-sm text-slate-500">Our engine executes the processing with pixel-perfect accuracy.</p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">4. Instant Download</h3>
-            <p className="text-sm text-slate-500">Save the perfectly formatted file directly to your device.</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">Security & Privacy Guarantee</h2>
-        <p className="text-slate-400">
-          <strong>Enterprise-Grade Security:</strong> Trust is our priority. We employ strict, zero-retention data policies to protect your sensitive information. All file uploads and downloads are routed through 256-bit SSL/TLS encrypted channels, preventing interception. Once your processing is complete, our automated systems permanently wipe your files from our servers within a maximum of 2 hours. We do not read, analyze, or share your document contents with any third parties.
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">Frequently Asked Questions</h2>
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-bold text-white">Will my converted file look exactly like the original?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes. Our PDF To Excel uses advanced layout mapping to ensure your fonts, margins, images, and tables remain perfectly intact during the process.</p>
-          </div>
-          <div>
-            <h3 className="font-bold text-white">Is it safe to process confidential documents online?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes, it is completely safe. All file transfers are secured with SSL encryption, and your documents are permanently deleted from our cloud servers within 2 hours.</p>
-          </div>
-          <div>
-            <h3 className="font-bold text-white">Can I use this tool on my iPhone or Android?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes. Our web-based tool is fully responsive and cloud-powered, allowing you to seamlessly process documents on any mobile browser without downloading an app.</p>
-          </div>
-          <div>
-            <h3 className="font-bold text-white">Is there a file size limit for the free tool?</h3>
-            <p className="text-slate-400 text-sm mt-1">No arbitrary limits are enforced for free usage. Our enterprise-grade cloud servers process even massive files in seconds.</p>
-          </div>
-        </div>
       </div>
     </div>
   );
 
-return (
+  return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
       <ToolLayout
-      title="Convert PDF to Excel"
-      description="Extract aligned tables from a PDF document and compile them into an Excel workbook (.xlsx)."
-      icon={Grid}
-      file={file}
-      onFileSelect={handleFileSelect}
-      onClear={clearFile}
-      controls={controls}
-      onExecute={handleConvert}
-      isExecuting={isExecuting}
-      progress={progress}
-      successMessage={successMessage}
-      errorMessage={errorMessage}
-      seoContent={seoContent}
-       pageNumber={1} scale={0.8}
-    />
+        title="PDF To Excel"
+        description="Convert PDF to Excel locally in your browser with absolute privacy."
+        icon={Table}
+        file={file}
+        onFileSelect={handleFileSelect}
+        onClear={() => { setFile(null); setSuccessMessage(''); setErrorMessage(''); }}
+        controls={controls}
+        onExecute={handleConvert}
+        isExecuting={isExecuting}
+        progress={progress}
+        successMessage={successMessage}
+        errorMessage={errorMessage}
+        seoContent={seoContent}
+        preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
+      />
     </>
   );
 }
