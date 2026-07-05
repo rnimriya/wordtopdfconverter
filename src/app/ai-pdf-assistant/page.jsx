@@ -1,95 +1,72 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Cpu, Send, Loader2 } from 'lucide-react';
+import { MessageSquare, Loader2, AlertCircle } from 'lucide-react';
 import ToolLayout from '../../components/ToolLayout.jsx';
 import PDFPreview from '../../components/PDFPreview.jsx';
 import { extractTextFromPdf } from '../../utils/textExtractor.js';
+import confetti from 'canvas-confetti';
 
-function AiAssistant() {
+function AssistantPdf() {
   const [file, setFile] = useState(null);
-  const [query, setQuery] = useState('');
-  const [chat, setChat] = useState([]);
+  const [answer, setAnswer] = useState('');
+  const [prompt, setPrompt] = useState('');
   const [isExecuting, setIsExecuting] = useState(false);
   const [documentText, setDocumentText] = useState('');
   const [loadingText, setLoadingText] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleFileSelect = async (selectedFile) => {
     setFile(selectedFile);
     setLoadingText(true);
-    setChat([
-      { role: 'assistant', text:"Hello! I am scanning the document structure to extract text analysis layers..." }
-    ]);
+    setAnswer('');
+    setErrorMessage('');
     
-    const text = await extractTextFromPdf(selectedFile);
-    setDocumentText(text);
-    setLoadingText(false);
-    
-    setChat([
-      { role: 'assistant', text:"Hello! I have loaded your PDF document text successfully. Ask me any question about its contents!" }
-    ]);
+    try {
+      const text = await extractTextFromPdf(selectedFile);
+      if (!text || text.trim().length === 0) {
+        throw new Error("Could not extract any text from this PDF.");
+      }
+      setDocumentText(text);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage(err.message || "Failed to extract text from PDF.");
+    } finally {
+      setLoadingText(false);
+    }
   };
 
-  const handleSend = async () => {
-    if (!file) return;
+  const handleChat = async () => {
+    if (!file || !documentText || !prompt.trim()) return;
 
     setIsExecuting(true);
     setErrorMessage('');
     setSuccessMessage('');
-    setProgress(10);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('task', 'unsupported');
-
-      setProgress(30);
-
-      const response = await fetch('/api/convert', {
+      const response = await fetch('/api/ai', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          task: 'chat',
+          documentText: documentText,
+          customPrompt: prompt
+        }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Server responded with ${response.status}`);
+        throw new Error(data.error || `Server responded with ${response.status}`);
       }
 
-      setProgress(80);
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
+      setAnswer(data.result);
+      setSuccessMessage("Answer received!");
       
-      let downloadName = 'processed-document.pdf';
-      downloadName = `${file.name.replace(/\.[^/.]+$/, '')}-unsupported.pdf`;
-      
-      // ILovePDF can return zips for some tasks
-      if (blob.type === 'application/zip') {
-        downloadName = downloadName.replace('.pdf', '.zip');
-      }
-
-      a.download = downloadName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      setProgress(100);
-      setSuccessMessage("Processing successful! Download initialized.");
-      
-      // Ensure confetti is called if available, else skip
-      if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 100,
-          spread: 60,
-          origin: { y: 0.6 }
-        });
-      }
     } catch (err) {
       console.error(err);
-      setErrorMessage("Error processing document: " + err.message);
+      setErrorMessage(err.message);
     } finally {
       setIsExecuting(false);
     }
@@ -97,56 +74,99 @@ function AiAssistant() {
 
   const controls = (
     <div className="space-y-4">
-      <div className="border border-slate-250 rounded-xl bg-slate-50 p-4 max-h-[300px] overflow-y-auto space-y-3">
-        {chat.map((msg, i) => (
-          <div key={i} className={"p-3 rounded-lg text-xs" + (msg.role === 'user' ? 'bg-primary-50 text-slate-800 ml-4 border border-primary-100' : 'bg-white text-slate-800 mr-4 border border-slate-200')}>
-            <span className="font-bold block mb-1 uppercase tracking-wider text-[9px] text-slate-400">{msg.role === 'user' ? 'You' : 'AI'}</span>
-            <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-          </div>
-        ))}
-        {isExecuting && (
-          <div className="p-3 rounded-lg text-xs bg-white text-slate-400 mr-4 border border-slate-100 flex items-center space-x-1.5">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            <span>Thinking...</span>
-          </div>
-        )}
-      </div>
-      <div className="flex space-x-2">
-        <input 
-          type="text" 
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ask a question..."
-          className="glass-input text-xs py-2.5"
-          disabled={!file || loadingText || isExecuting}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+          Ask a Question
+        </label>
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          disabled={isExecuting || loadingText}
+          placeholder="What is this document about?"
+          className="w-full bg-slate-900 border border-slate-700 text-slate-300 rounded-lg p-3 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none transition-all resize-none h-24"
         />
-        <button 
-          onClick={handleSend} 
-          className="px-4 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 disabled:opacity-50 text-xs font-bold shrink-0" 
-          disabled={!file || !query.trim() || loadingText || isExecuting}
-        >
-          Send
-        </button>
+      </div>
+
+      <button 
+        onClick={handleChat} 
+        className="w-full glass-button-primary text-xs flex items-center justify-center space-x-2" 
+        disabled={!file || loadingText || isExecuting || !documentText || !prompt.trim()}
+      >
+        {isExecuting ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Thinking...</span>
+          </>
+        ) : (
+          <>
+            <MessageSquare className="h-4 w-4" />
+            <span>Ask Document</span>
+          </>
+        )}
+      </button>
+      
+      {loadingText && (
+        <div className="p-4 border border-slate-700/50 rounded-xl bg-slate-900/50 text-xs text-slate-400 text-center animate-pulse">
+          Extracting text from PDF layout...
+        </div>
+      )}
+
+      {answer && (
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-white mb-2">Answer</h3>
+          <div className="p-4 border border-slate-700/50 rounded-xl bg-slate-900 text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed">
+            {answer}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Chat with PDF",
+    "url": "https://wordtopdfconverter.online/chat-with-pdf",
+    "description": "Talk to your PDF and ask questions.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Any"
+  };
+
+  const seoContent = (
+    <div className="prose prose-invert max-w-none space-y-8">
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold font-display text-white">AI PDF Assistant</h1>
+        <p className="text-slate-400 text-lg">
+          Ask questions and get answers directly from your PDF document.
+        </p>
       </div>
     </div>
   );
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
       <ToolLayout
-      title="AI PDF Assistant"
-      description="Consult and analyze document layers entirely client-side using advanced AI models."
-      icon={Cpu}
-      file={file}
-      onFileSelect={handleFileSelect}
-      onClear={() => { setFile(null); setChat([]); setDocumentText(''); }}
-      controls={controls}
-      onExecute={() => {}}
-      isExecuting={isExecuting || loadingText}
-    />
+        title="AI PDF Assistant"
+        description="Interact and ask questions based on your PDF."
+        icon={MessageSquare}
+        file={file}
+        onFileSelect={handleFileSelect}
+        onClear={() => { setFile(null); setAnswer(''); setPrompt(''); setDocumentText(''); setSuccessMessage(''); setErrorMessage(''); }}
+        controls={controls}
+        onExecute={handleChat}
+        isExecuting={isExecuting || loadingText}
+        progress={isExecuting ? 50 : 0}
+        successMessage={successMessage}
+        errorMessage={errorMessage}
+        seoContent={seoContent}
+        preview={<PDFPreview file={file} pageNumber={1} scale={0.8} />}
+      />
     </>
   );
 }
 
-export default AiAssistant;
+export default AssistantPdf;
