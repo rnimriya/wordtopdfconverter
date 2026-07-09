@@ -78,7 +78,7 @@ function DeletePDFPages() {
     }
   };
 
-        const schema = {
+          const schema = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Delete PDF Pages",
@@ -107,38 +107,38 @@ function DeletePDFPages() {
   const seoContent = (
     <div className="prose prose-invert max-w-none space-y-8">
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold font-display text-white">Secure Delete PDF Pages - 100% Private Cloud Processing</h1>
+        <h1 className="text-3xl font-bold font-display text-white">Delete PDF Pages Quickly and Securely</h1>
         <p className="text-slate-400 text-lg">
-          Our advanced online Delete PDF Pages tool makes it effortless to delete your documents securely in seconds. Whether you need to finalize a presentation, share a business contract, or lock in academic formatting, our tool ensures your document looks exactly the same on any device.
+          Need to delete your without losing your original formatting? Our tool makes it incredibly easy to turn your documents into polished, professional files in just a few seconds. Whether you are finalizing a business contract, submitting a school assignment, or preparing a presentation, you can count on us to make sure your document looks exactly the way you intended on any device. Best of all, you can use our tool to delete your online completely free of charge.
         </p>
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">How to Delete PDF Pages Online Without Losing Formatting</h2>
+        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">How to Delete PDF Pages Online</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-2">
           <div className="space-y-2">
             <h3 className="font-bold text-white text-base">1. Upload Document</h3>
-            <p className="text-sm text-slate-500">Drag and drop your file into the secure upload area.</p>
+            <p className="text-sm text-slate-500">Simply drag and drop your file right into our secure upload box.</p>
           </div>
           <div className="space-y-2">
             <h3 className="font-bold text-white text-base">2. Secure Transfer</h3>
-            <p className="text-sm text-slate-500">Files are transmitted over an encrypted 256-bit SSL connection.</p>
+            <p className="text-sm text-slate-500">Your file is instantly protected by a secure 256-bit SSL connection.</p>
           </div>
           <div className="space-y-2">
-            <h3 className="font-bold text-white text-base">3. API Processing</h3>
-            <p className="text-sm text-slate-500">Our engine executes the processing with pixel-perfect accuracy.</p>
+            <h3 className="font-bold text-white text-base">3. Fast Processing</h3>
+            <p className="text-sm text-slate-500">Our system quickly processes your file while keeping your layout perfectly intact.</p>
           </div>
           <div className="space-y-2">
             <h3 className="font-bold text-white text-base">4. Instant Download</h3>
-            <p className="text-sm text-slate-500">Save the perfectly formatted file directly to your device.</p>
+            <p className="text-sm text-slate-500">Save your new, cleanly formatted file directly to your device and you are good to go!</p>
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">Security & Privacy Guarantee</h2>
+        <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">Your Privacy and Security Come First</h2>
         <p className="text-slate-400">
-          <strong>Enterprise-Grade Security:</strong> Trust is our priority. We employ strict, zero-retention data policies to protect your sensitive information. All file uploads and downloads are routed through 256-bit SSL/TLS encrypted channels, preventing interception. Once your processing is complete, our automated systems permanently wipe your files from our servers within a maximum of 2 hours. We do not read, analyze, or share your document contents with any third parties.
+          We know how important your privacy is. When you use our free Delete PDF Pages tool, you can rest easy knowing we have strict security measures in place. Every file you upload and download is encrypted, meaning no one can intercept your data. To keep your information totally private, our system automatically and permanently deletes your files from our servers within two hours of your processing. We never read, analyze, or share your documents with anyone.
         </p>
       </div>
 
@@ -146,20 +146,20 @@ function DeletePDFPages() {
         <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-2">Frequently Asked Questions</h2>
         <div className="space-y-4">
           <div>
-            <h3 className="font-bold text-white">Will my converted file look exactly like the original?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes. Our Delete PDF Pages uses advanced layout mapping to ensure your fonts, margins, images, and tables remain perfectly intact during the process.</p>
+            <h3 className="font-bold text-white">Will my output look exactly like my original document?</h3>
+            <p className="text-slate-400 text-sm mt-1">Absolutely. We use advanced formatting technology to make sure your fonts, images, margins, and tables look perfect and remain exactly where you put them.</p>
           </div>
           <div>
-            <h3 className="font-bold text-white">Is it safe to process confidential documents online?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes, it is completely safe. All file transfers are secured with SSL encryption, and your documents are permanently deleted from our cloud servers within 2 hours.</p>
+            <h3 className="font-bold text-white">Is it safe to upload confidential documents?</h3>
+            <p className="text-slate-400 text-sm mt-1">Yes, it is completely safe. We use strong SSL encryption for all file transfers, and we permanently wipe your files from our secure servers within two hours.</p>
           </div>
           <div>
-            <h3 className="font-bold text-white">Can I use this tool on my iPhone or Android?</h3>
-            <p className="text-slate-400 text-sm mt-1">Yes. Our web-based tool is fully responsive and cloud-powered, allowing you to seamlessly process documents on any mobile browser without downloading an app.</p>
+            <h3 className="font-bold text-white">Can I process files on my phone?</h3>
+            <p className="text-slate-400 text-sm mt-1">You sure can! Our website is fully optimized for mobile devices, so you can easily delete your online using your iPhone or Android browser—no extra apps required.</p>
           </div>
           <div>
-            <h3 className="font-bold text-white">Is there a file size limit for the free tool?</h3>
-            <p className="text-slate-400 text-sm mt-1">No arbitrary limits are enforced for free usage. Our enterprise-grade cloud servers process even massive files in seconds.</p>
+            <h3 className="font-bold text-white">Are there file size limits for the free tool?</h3>
+            <p className="text-slate-400 text-sm mt-1">We do not put strict limits on file sizes for everyday use. Our powerful cloud servers are designed to handle even large documents quickly and efficiently.</p>
           </div>
         </div>
       </div>
